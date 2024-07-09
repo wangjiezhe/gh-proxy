@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 import re
+from urllib.parse import quote
 
 import requests
 from flask import Flask, Response, redirect, request
-from requests.exceptions import (
-    ChunkedEncodingError,
-    ContentDecodingError, ConnectionError, StreamConsumedError)
-from requests.utils import (
-    stream_decode_response_unicode, iter_slices, CaseInsensitiveDict)
-from urllib3.exceptions import (
-    DecodeError, ReadTimeoutError, ProtocolError)
-from urllib.parse import quote
+from requests.exceptions import (ChunkedEncodingError, ConnectionError,
+                                 ContentDecodingError, StreamConsumedError)
+from requests.utils import (CaseInsensitiveDict, iter_slices,
+                            stream_decode_response_unicode)
+from urllib3.exceptions import DecodeError, ProtocolError, ReadTimeoutError
 
 # config
 # 分支文件使用jsDelivr镜像的开关，0为关闭，默认关闭
@@ -26,6 +24,9 @@ size_limit = 1024 * 1024 * 1024 * 999  # 允许的文件大小，默认999GB，�
   */repo1 # 封禁所有叫做repo1的仓库
 """
 white_list = '''
+wangjiezhe
+gentoo
+gentoo-mirror
 '''
 black_list = '''
 '''
@@ -33,8 +34,8 @@ pass_list = '''
 '''
 
 HOST = '127.0.0.1'  # 监听地址，建议监听本地然后由web服务器反代
-PORT = 80  # 监听端口
-ASSET_URL = 'https://hunshcn.github.io/gh-proxy'  # 主页
+PORT = 10086  # 监听端口
+ASSET_URL = 'https://wangjiezhe.github.io/gh-proxy'  # 主页
 
 white_list = [tuple([x.replace(' ', '') for x in i.split('/')]) for i in white_list.split('\n') if i]
 black_list = [tuple([x.replace(' ', '') for x in i.split('/')]) for i in black_list.split('\n') if i]
@@ -184,6 +185,9 @@ def proxy(u, allow_redirects=False):
                 headers['Location'] = '/' + _location
             else:
                 return proxy(_location, True)
+
+        if 'Transfer-Encoding' in headers:
+            headers.pop('Transfer-Encoding')
 
         return Response(generate(), headers=headers, status=r.status_code)
     except Exception as e:
