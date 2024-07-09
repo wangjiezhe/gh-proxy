@@ -1,0 +1,9 @@
+github.domain.ltd {
+	# import cert settings ...
+
+	reverse_proxy :10086 {
+		header_up X-Real-IP {remote_addr}
+		header_up X-Forwarded-For {remote_addr}
+		header_up X-Nginx-Proxy true
+	}
+}
